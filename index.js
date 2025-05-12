@@ -5,10 +5,9 @@ const cookieParser = require('cookie-parser');
 const userRoutes = require('./routes/userRoutes');
 const queryRoutes = require('./routes/queryRoutes');
 require('dotenv').config();
+const serverless = require('serverless-http');
 
 const app = express();
-
-module.exports = app;
 
 app.use(cors({
     origin: "*", // Allow all origins temporarily for testing
@@ -19,6 +18,7 @@ const PORT = process.env.PORT || 5000;
 
 app.use(express.json());
 app.use(cookieParser());
+
 app.get('/', (req, res) => {
     res.send('Hello Leave Here');
 });
@@ -37,3 +37,5 @@ process.on('SIGTERM', async () => {
         console.log('Process terminated');
     });
 });
+
+module.exports = serverless(app);
