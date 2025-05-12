@@ -1,0 +1,38 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@bull-board/express": "^6.9.5",
+    "@prisma/client": "^6.6.0",
+    "axios": "^1.9.0",
+    "bcryptjs": "^3.0.2",
+    "bullmq": "^5.51.1",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "express-rate-limit": "^7.5.0",
+    "express-validator": "^7.2.1",
+    "jsonwebtoken": "^9.0.2",
+    "lodash": "^4.17.21",
+    "openai": "^4.97.0",
+    "prisma": "^6.6.0",
+    "redis": "^5.0.0",
+    "validator": "^13.15.0"
+  },
+  "devDependencies": {
+    "artillery": "^2.0.22",
+    "nodemon": "^3.1.10"
+  }
+}

@@ -1,0 +1,54 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  // output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("SUPABASE_DB_URL")
+}
+
+model User {
+  id           String    @id @default(uuid())
+  email        String    @unique
+  password     String
+  refreshToken String?
+  queries      Query[]
+  createdAt    DateTime  @default(now())
+}
+
+model Query {
+  id        String     @id @default(uuid())
+  text      String
+  platforms String[]   // Array of strings
+  user      User?      @relation(fields: [userId], references: [id])
+  userId    String?
+  createdAt DateTime   @default(now())
+  summaries Summary[]
+  rawResults RawResult[]  // 👈 ADD THIS (fixes your error)
+}
+
+model Summary {
+  id        String   @id @default(uuid())
+  text      String
+  platform  String   // "reddit", "youtube", etc.
+  queryId   String
+  query     Query    @relation(fields: [queryId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model RawResult {
+  id         String   @id @default(uuid())
+  content    String   // Raw text/content
+  metadata   Json     // { likes: 42, author: "user123", url: "..." }
+  platform   String   // "reddit", "youtube", etc.
+  queryId    String
+  query      Query    @relation(fields: [queryId], references: [id])
+  createdAt  DateTime @default(now())
+}
