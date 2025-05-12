@@ -25,9 +25,9 @@ app.get('/', (req, res) => {
 app.use('/api/users', userRoutes);
 app.use('/api/queries', queryRoutes);
 
-const server = app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+// const server = app.listen(PORT, () => {
+//     console.log(`Server running on port ${PORT}`);
+// });
 
 // Graceful shutdown
 process.on('SIGTERM', async () => {
