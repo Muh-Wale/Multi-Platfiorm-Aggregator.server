@@ -1,12 +1,14 @@
-require('dotenv').config();
 // server/app.js
 const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const userRoutes = require('./routes/userRoutes');
 const queryRoutes = require('./routes/queryRoutes');
+require('dotenv').config();
 
 const app = express();
+
+module.exports = app;
 
 app.use(cors({
     origin: "*", // Allow all origins temporarily for testing
@@ -27,4 +29,11 @@ const server = app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
 
-module.exports = app;
+// Graceful shutdown
+process.on('SIGTERM', async () => {
+    console.log('SIGTERM received, shutting down gracefully');
+    await prisma.$disconnect();
+    server.close(() => {
+        console.log('Process terminated');
+    });
+});
