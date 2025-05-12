@@ -6,12 +6,13 @@ const cookieParser = require('cookie-parser');
 const userRoutes = require('./routes/userRoutes');
 const queryRoutes = require('./routes/queryRoutes');
 
+const app = express();
+
 app.use(cors({
     origin: "*", // Allow all origins temporarily for testing
     credentials: true,
 }));
 
-const app = express();
 const PORT = process.env.PORT || 5000;
 
 app.use(express.json());
