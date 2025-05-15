@@ -8,10 +8,11 @@ require('dotenv').config();
 
 const app = express();
 
-app.use(cors({
-    origin: "*", // Allow all origins temporarily for testing
+cors({
+    origin: 'http://localhost:5173', // or your frontend domain
     credentials: true,
-}));
+});
+
 
 app.use(express.json());
 app.use(cookieParser());
