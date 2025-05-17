@@ -10,17 +10,11 @@
     "routes": [
         {
             "src": "/api/(.*)",
-            "headers": {
-                "Access-Control-Allow-Origin": "http://localhost:5173",
-                "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-                "Access-Control-Allow-Headers": "X-Requested-With, Content-Type, Accept, Authorization",
-                "Access-Control-Allow-Credentials": "true"
-            },
-            "continue": true
+            "dest": "/index.js"
         },
         {
             "src": "/(.*)",
-            "dest": "index.js"
+            "dest": "/index.js"
         }
     ]
 }

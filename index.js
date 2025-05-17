@@ -8,25 +8,13 @@ require('dotenv').config();
 
 const app = express();
 
-// Updated CORS configuration to handle both development and production environments
 app.use(cors({
-    origin: 'http://localhost:5173', // Set exact origin instead of a function or wildcard
+    origin: 'http://localhost:5173', // or your frontend domain
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 app.use(express.json());
 app.use(cookieParser());
-
-// Set explicit headers for CORS preflight requests
-app.options('*', (req, res) => {
-    res.header('Access-Control-Allow-Origin', 'http://localhost:5173');
-    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
-    res.header('Access-Control-Allow-Credentials', 'true');
-    res.sendStatus(200);
-});
 
 app.get('/', (req, res) => {
     res.send('Hello Leave Here');
