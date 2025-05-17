@@ -1,10 +1,9 @@
-require('dotenv').config();
 // server/controllers/userController.js
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const prisma = require('../config/db');
 
-// In userController.js
+// Generate access and refresh tokens
 const generateTokens = (userId) => {
     if (!process.env.JWT_SECRET || !process.env.REFRESH_SECRET) {
         throw new Error("JWT secrets are not configured");
@@ -41,28 +40,48 @@ const register = async (req, res) => {
 };
 
 const login = async (req, res) => {
-    const { email, password } = req.body;
-    const isProduction = process.env.NODE_ENV === 'production';
+    try {
+        const { email, password } = req.body;
+        const isProduction = process.env.NODE_ENV === 'production';
 
-    const user = await prisma.user.findUnique({ where: { email } });
+        const user = await prisma.user.findUnique({ where: { email } });
 
-    if (!user || !(await bcrypt.compare(password, user.password))) {
-        return res.status(401).json({ error: "Invalid credentials" });
+        if (!user || !(await bcrypt.compare(password, user.password))) {
+            return res.status(401).json({ error: "Invalid credentials" });
+        }
+
+        const { accessToken, refreshToken } = generateTokens(user.id);
+
+        await prisma.user.update({
+            where: { id: user.id },
+            data: { refreshToken }
+        });
+
+        // Set proper CORS headers for the response
+        res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
+        res.header('Access-Control-Allow-Credentials', 'true');
+
+        // Set the refresh token as a cookie
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            secure: isProduction,
+            sameSite: isProduction ? 'None' : 'Lax',
+            maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+        });
+
+        // Return the access token in the response body
+        return res.status(200).json({ 
+            success: true, 
+            accessToken,
+            user: {
+                id: user.id,
+                email: user.email
+            }
+        });
+    } catch (error) {
+        console.error('Login error:', error);
+        return res.status(500).json({ error: "Server error during login" });
     }
-
-    const { accessToken, refreshToken } = generateTokens(user.id);
-
-    await prisma.user.update({
-        where: { id: user.id },
-        data: { refreshToken }
-    });
-
-    res.cookie('refreshToken', refreshToken, {
-        httpOnly: true,
-        secure: isProduction,        // ⬅️ allow only over HTTPS in prod
-        sameSite: isProduction ? 'None' : 'Lax',  // ⬅️ cross-origin cookies
-        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-    });
 };
 
 const refresh = async (req, res) => {
@@ -81,6 +100,10 @@ const refresh = async (req, res) => {
 
         const isProduction = process.env.NODE_ENV === 'production';
 
+        // Set proper CORS headers
+        res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
+        res.header('Access-Control-Allow-Credentials', 'true');
+
         res.cookie('accessToken', accessToken, {
             httpOnly: true,
             secure: isProduction,
@@ -95,6 +118,5 @@ const refresh = async (req, res) => {
         return res.sendStatus(403);
     }
 };
-
 
 module.exports = { register, login, refresh };
