@@ -42,6 +42,8 @@ const register = async (req, res) => {
 
 const login = async (req, res) => {
     const { email, password } = req.body;
+    const isProduction = process.env.NODE_ENV === 'production';
+
     const user = await prisma.user.findUnique({ where: { email } });
 
     if (!user || !(await bcrypt.compare(password, user.password))) {
@@ -55,24 +57,44 @@ const login = async (req, res) => {
         data: { refreshToken }
     });
 
-    res.cookie('accessToken', accessToken, { httpOnly: true, maxAge: 900000 })
-        .cookie('refreshToken', refreshToken, { httpOnly: true, maxAge: 604800000 })
-        .json({ accessToken });
+    res.cookie('refreshToken', refreshToken, {
+        httpOnly: true,
+        secure: isProduction,        // ⬅️ allow only over HTTPS in prod
+        sameSite: isProduction ? 'None' : 'Lax',  // ⬅️ cross-origin cookies
+        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+    });
 };
 
 const refresh = async (req, res) => {
-    const refreshToken = req.cookies.refreshToken;
-    if (!refreshToken) return res.sendStatus(401);
+    const token = req.cookies.refreshToken;
+    if (!token) return res.sendStatus(401);
 
-    const user = await prisma.user.findFirst({ where: { refreshToken } });
-    if (!user) return res.sendStatus(403);
+    try {
+        const decoded = jwt.verify(token, process.env.REFRESH_SECRET);
+        const user = await prisma.user.findUnique({ where: { id: decoded.id } });
 
-    jwt.verify(refreshToken, process.env.REFRESH_SECRET, (err, decoded) => {
-        if (err || user.id !== decoded.id) return res.sendStatus(403);
+        if (!user || user.refreshToken !== token) {
+            return res.sendStatus(403);
+        }
+
         const { accessToken } = generateTokens(user.id);
-        res.cookie('accessToken', accessToken, { httpOnly: true, maxAge: 900000 })
-            .json({ accessToken });
-    });
+
+        const isProduction = process.env.NODE_ENV === 'production';
+
+        res.cookie('accessToken', accessToken, {
+            httpOnly: true,
+            secure: isProduction,
+            sameSite: isProduction ? 'None' : 'Lax',
+            maxAge: 15 * 60 * 1000
+        });
+
+        res.json({ accessToken });
+
+    } catch (err) {
+        console.error('Invalid refresh token:', err);
+        return res.sendStatus(403);
+    }
 };
+
 
 module.exports = { register, login, refresh };
