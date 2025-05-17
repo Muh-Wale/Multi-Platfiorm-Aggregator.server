@@ -23,8 +23,16 @@ async function submitQuery(text, platforms, userId) {
     return query;
 }
 
+async function getRawResults(queryId) {
+    const rawResults = await prisma.rawResult.findMany({
+        where: { queryId },
+        orderBy: { createdAt: 'desc' }
+    });
+    return rawResults;
+}
+
 async function getSummary(queryId) {
     return await summarize(queryId);
 }
 
-module.exports = { submitQuery, getSummary };
+module.exports = { submitQuery, getSummary, getRawResults };

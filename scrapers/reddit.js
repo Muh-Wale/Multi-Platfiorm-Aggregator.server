@@ -8,7 +8,7 @@ async function scrapeReddit(queryId, searchText, minUpvotes = 10) {
     try {
         // 1. Fetch from Reddit API
         const response = await axios.get(
-            `https://www.reddit.com/search.json?q=${encodeURIComponent(searchText)}&limit=20`,
+            `https://www.reddit.com/search.json?q=${encodeURIComponent(searchText)}&limit=10`,
             {
                 timeout: 10000,
                 headers: { 'User-Agent': 'AnswerAggregator/1.0' }
