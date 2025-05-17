@@ -58,7 +58,7 @@ const login = async (req, res) => {
         });
 
         // Set proper CORS headers for the response
-        res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
+        res.header('Access-Control-Allow-Origin', 'http://localhost:5173');
         res.header('Access-Control-Allow-Credentials', 'true');
 
         // Set the refresh token as a cookie
@@ -101,7 +101,7 @@ const refresh = async (req, res) => {
         const isProduction = process.env.NODE_ENV === 'production';
 
         // Set proper CORS headers
-        res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
+        res.header('Access-Control-Allow-Origin', 'http://localhost:5173');
         res.header('Access-Control-Allow-Credentials', 'true');
 
         res.cookie('accessToken', accessToken, {
