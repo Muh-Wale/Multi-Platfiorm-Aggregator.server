@@ -8,7 +8,7 @@ const router = express.Router();
 
 const queryLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 5, // Only 5 queries per 15 minutes
+    max: 10, // Only 5 queries per 15 minutes
     message: 'Too many query submissions - try again later'
 });
 
