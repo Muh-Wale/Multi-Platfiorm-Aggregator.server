@@ -1,5 +1,5 @@
 // utils/upstash.js
-require('dotenv').config();
+require('dotenv').config({ path: '../.env' }); // Adjust path if needed
 
 async function setKey(key, value) {
     const response = await fetch(
