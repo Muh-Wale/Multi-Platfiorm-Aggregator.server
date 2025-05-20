@@ -7,7 +7,7 @@ const prisma = require('../config/db');
 const router = express.Router();
 
 const queryLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
+    windowMs: 15 * 60 * 1000, // 15 minutes times
     max: 10, // Only 5 queries per 15 minutes
     message: 'Too many query submissions - try again later'
 });
